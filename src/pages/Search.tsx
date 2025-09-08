@@ -6,7 +6,7 @@ import {
     resolveStreamUrl,
     searchStations,
 } from "../api/radioBrowser";
-import { SearchStationGrid } from "../components/SearchStationGrid";
+import { StationGrid } from "../components/StationGrid";
 import { usePlayer } from "../player/PlayerProvider";
 import { useCountry } from "../prefs/CountryProvider";
 
@@ -152,7 +152,7 @@ export default function Search() {
             {error && <div className="text-rose-400">{error}</div>}
 
             {stations.length > 0 ? (
-                <SearchStationGrid stations={stations} onPlay={onPlay} />
+                <StationGrid stations={stations} onPlay={onPlay} />
             ) : (
                 !loading &&
                 !error && (
