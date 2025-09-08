@@ -6,7 +6,7 @@ import { useCountry } from "../prefs/CountryProvider";
 import HomeCarousel from "../components/HomeCarousel";
 
 export default function Home() {
-    const { status, play } = usePlayer();
+    const { play } = usePlayer();
     const { country } = useCountry();
     const [stations, setStations] = useState<Station[]>([]);
     const [center, setCenter] = useState<Station | null>(null);

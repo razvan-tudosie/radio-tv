@@ -32,7 +32,7 @@ export default function Search() {
     const [error, setError] = useState<string | null>(null);
 
     // global player
-    const { status, play } = usePlayer();
+    const {play } = usePlayer();
 
     // load filters once (dedupe + sort + Romania pinned first)
     useEffect(() => {
