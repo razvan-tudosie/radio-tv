@@ -28,7 +28,6 @@ export function StationList({
                 <div className="w-24 h-24 rounded-full bg-zinc-800" />
               )}
             </div>
-            aici
             <div className="font-semibold text-lg truncate">{s.name}</div>
             <div className="text-sm text-zinc-400">{s.country || ""}</div>
             <div className="text-xs text-zinc-500 mt-1">{(s.codec || "").toUpperCase()} • {s.bitrate || 0} kbps</div>
