@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets"
+        xmlns:tizen="http://tizen.org/ns/widgets"
+        id="tv.radio.prototype"
+        version="1.0.0"
+        viewmodes="fullscreen"
+        type="web">
+    <tizen:application id="tv.radio.prototype" package="yourapprad" required_version="2.4"/>
+    <content src="index.html"/>
+    <icon src="icon.png"/>
+    <name>Radio TV</name>
+    <tizen:profile name="tv"/>
+    <tizen:setting screen-orientation="landscape" context-menu="disable" background-support="disable"/>
+</widget>
+
+

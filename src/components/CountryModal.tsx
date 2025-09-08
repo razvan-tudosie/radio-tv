@@ -32,7 +32,7 @@ export function CountryModal() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80">
+    <div className="fixed inset-0 z-50 bg-black/80 z-[10000] ">
       <div className="absolute inset-0 bg-black text-white p-6 md:p-10 overflow-auto">
         <header className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-semibold">Choose country</h2>

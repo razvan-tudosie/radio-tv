@@ -25,7 +25,13 @@ export default function Home() {
     const onPlay = (s: Station) => {
         const url = resolveStreamUrl(s);
         if (!url) return;
-        play(url, { name: s.name, favicon: s.favicon, stationuuid: s.stationuuid });
+        play(url, {
+            stationuuid: s.stationuuid,
+            name: s.name,
+            favicon: s.favicon,
+            codec: s.codec,         // add
+            bitrate: s.bitrate,     // add
+        } as any);
     };
 
     return (

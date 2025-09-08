@@ -1,55 +1,119 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { usePlayer } from "../player/PlayerProvider";
+import LiveIcon from "../assets/live";
+import Play_circle_40 from "../assets/Play_circle_40";
+import Pause_circle from "../assets/Pause_circle";
 
 export function PlayerWidget() {
-    const { status, currentStation, resume, pause, currentUrl } = usePlayer();
+    const { status, currentStation, currentUrl, resume, pause } = usePlayer();
 
     const isPlaying = status === "Playing" || status === "Buffering";
-    const canPlay = !!currentUrl; // we can resume only after a station was started
+    const canPlay = !!currentUrl;
 
-    // button label + handler based on state
-    const action = useMemo(() => {
-        if (isPlaying) {
-            return { label: "Pause", onClick: pause, disabled: false };
+    type UIState = "none" | "paused" | "playing";
+    const ui = useMemo(() => {
+        if (!canPlay) {
+            return { state: "none" as UIState, label: "No station", onClick: () => { }, disabled: true };
         }
-        return { label: "Play", onClick: resume, disabled: !canPlay };
-    }, [isPlaying, pause, resume, canPlay]);
+        if (isPlaying) {
+            return { state: "playing" as UIState, label: "Pause", onClick: pause, disabled: false };
+        }
+        return { state: "paused" as UIState, label: "Play", onClick: resume, disabled: false };
+    }, [canPlay, isPlaying, pause, resume]);
+
+    // optional codec/bitrate line
+    const codec = (currentStation as any)?.codec ? String((currentStation as any).codec).toUpperCase() : "";
+    const bitrate = (currentStation as any)?.bitrate ? `${(currentStation as any).bitrate} kbps` : "";
+    const meta = codec || bitrate ? [codec, bitrate].filter(Boolean).join(" • ") : "";
+
+    // Ensure TV 'Play' key also triggers click (buttons already handle Enter)
+    const btnRef = useRef<HTMLButtonElement | null>(null);
+    useEffect(() => {
+        const onKey = (e: KeyboardEvent) => {
+            if (e.keyCode === 415 && btnRef.current && !ui.disabled) {
+                e.preventDefault();
+                btnRef.current.click();
+            }
+        };
+        document.addEventListener("keydown", onKey);
+        return () => document.removeEventListener("keydown", onKey);
+    }, [ui.disabled]);
 
     return (
-        <div className="flex items-center gap-3 bg-zinc-900/80 border border-zinc-800 rounded-xl px-3 py-2">
-            <div className="relative w-8 h-8 rounded-md bg-zinc-800 overflow-hidden grid place-items-center">
+        <button
+            ref={btnRef}
+            type="button"
+            onClick={ui.onClick}
+            disabled={ui.disabled}
+            aria-label={ui.label}
+            className={[
+                // layout
+                "flex items-center gap-4 rounded-3xl px-4 py-3",
+                "w-full md:w-auto",
+                // visuals
+                "bg-white/5 border border-white/10 backdrop-blur transition",
+                ui.disabled ? "opacity-60 cursor-not-allowed" : "hover:bg-white/7",
+                // focus highlight for TV/keyboard
+                "focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:border-white",
+            ].join(" ")}
+        >
+            {/* Logo */}
+            <div className="w-12 h-12 rounded-xl bg-zinc-800/70 overflow-hidden grid place-items-center shrink-0">
                 {currentStation?.favicon ? (
-                    <img src={currentStation.favicon} alt="" className="w-8 h-8 object-contain" />
+                    <img
+                        src={currentStation.favicon}
+                        alt=""
+                        className="w-12 h-12 object-contain"
+                        loading="lazy"
+                        decoding="async"
+                    />
                 ) : (
-                    <div className="w-4 h-4 rounded-full bg-zinc-700" />
+                    <div className="w-6 h-6 rounded-md bg-zinc-700" />
                 )}
+            </div>
 
-                {/* live dot when playing */}
-                {isPlaying && (
-                    <span className="absolute -right-1 -top-1 inline-flex h-3 w-3">
-                        <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
-                        <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500" />
+            {/* Title + meta */}
+            <div className="min-w-[180px] max-w-[280px] flex-1 text-left">
+                <div
+                    className={[
+                        "font-semibold truncate text-[18px] leading-6",
+                        ui.state === "none" ? "text-zinc-400" : "text-white",
+                    ].join(" ")}
+                    title={currentStation?.name || "No station"}
+                >
+                    {currentStation?.name ?? "No station"}
+                </div>
+                <div className="text-[13px] text-zinc-400 truncate">
+                    {ui.state === "none" ? "Select a station to play" : meta || " "}
+                </div>
+            </div>
+
+            {/* Status column (centered vertically) */}
+            <div className="flex items-center justify-center w-[92px]">
+                {ui.state === "playing" ? (
+                    <span className="inline-flex items-center gap-1 text-emerald-400 text-sm">
+                        Live <LiveIcon className="inline-block" />
                     </span>
+                ) : ui.state === "paused" ? (
+                    <span className="text-amber-400 text-sm">Paused</span>
+                ) : (
+                    <span className="text-zinc-500 text-sm">&nbsp;</span>
                 )}
             </div>
 
-            <div className="min-w-[140px] max-w-[220px] truncate text-sm">
-                {currentStation?.name ?? "No station"}
-                <div className="text-[11px] text-zinc-400">Status: {status}</div>
-            </div>
-
-            <button
-                onClick={action.onClick}
-                disabled={action.disabled}
-                className={`px-3 py-1.5 rounded-lg text-sm ${action.disabled
-                        ? "bg-zinc-800 text-zinc-500 cursor-not-allowed"
-                        : isPlaying
-                            ? "bg-amber-600 hover:bg-amber-500"
-                            : "bg-emerald-600 hover:bg-emerald-500"
-                    }`}
+            {/* Icon (visual only; whole widget is clickable) */}
+            <span
+                className={[
+                    "shrink-0 rounded-full",
+                    ui.disabled ? "opacity-40" : "",
+                ].join(" ")}
             >
-                {action.label}
-            </button>
-        </div>
+                {ui.state === "playing" ? (
+                    <Pause_circle className="w-10 h-10" />
+                ) : (
+                    <Play_circle_40 className="w-10 h-10" />
+                )}
+            </span>
+        </button>
     );
 }
