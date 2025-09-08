@@ -10,18 +10,20 @@ import { CountryProvider } from "./prefs/CountryProvider";
 import "./App.css";
 
 const router = createHashRouter([
-  { path: "/", element: <App />, children: [
-    { index: true, element: <Home /> },
-    { path: "search", element: <Search /> },
-  ]},
+    {
+        path: "/", element: <App />, children: [
+            { index: true, element: <Home /> },
+            { path: "search", element: <Search /> },
+        ]
+    },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <PlayerProvider>
-      <CountryProvider>
-        <RouterProvider router={router} />
-      </CountryProvider>
-    </PlayerProvider>
-  </React.StrictMode>
+    <React.StrictMode>
+        <PlayerProvider>
+            <CountryProvider>
+                <RouterProvider router={router} />
+            </CountryProvider>
+        </PlayerProvider>
+    </React.StrictMode>
 );

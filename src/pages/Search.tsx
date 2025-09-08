@@ -6,13 +6,20 @@ import {
     resolveStreamUrl,
     searchStations,
 } from "../api/radioBrowser";
-import { StationGrid } from "../components/StationGrid";
+import { SearchStationGrid } from "../components/SearchStationGrid";
 import { usePlayer } from "../player/PlayerProvider";
+import { useCountry } from "../prefs/CountryProvider";
 
 export default function Search() {
+    // ⬇️ read the globally-selected country (navbar modal)
+    const { country: globalCountry } = useCountry();
+
     // form state
     const [q, setQ] = useState("");
-    const [country, setCountry] = useState<string>("Romania");
+    // ⬇️ initialize with global country and keep in sync if it changes
+    const [country, setCountry] = useState<string>(globalCountry);
+    useEffect(() => { setCountry(globalCountry); }, [globalCountry]);
+
     const [tag, setTag] = useState<string>("");
 
     // dropdown data
@@ -54,7 +61,7 @@ export default function Search() {
         try {
             const results = await searchStations({
                 query: q.trim(),
-                country: country || "",
+                country: country || "", // "" = all countries
                 tag: tag || "",
                 limit: 50,
             });
@@ -84,10 +91,10 @@ export default function Search() {
 
     return (
         <div className="space-y-6">
-            <header className="flex items-baseline gap-3">
+            {/* <header className="flex items-baseline gap-3">
                 <h1 className="text-3xl font-semibold">Search</h1>
                 <span className="text-zinc-400 text-sm">Status: {status}</span>
-            </header>
+            </header> */}
 
             {/* Controls */}
             <div className="flex flex-wrap gap-3">
@@ -145,7 +152,7 @@ export default function Search() {
             {error && <div className="text-rose-400">{error}</div>}
 
             {stations.length > 0 ? (
-                <StationGrid stations={stations} onPlay={onPlay} />
+                <SearchStationGrid stations={stations} onPlay={onPlay} />
             ) : (
                 !loading &&
                 !error && (
